@@ -9,3 +9,4 @@ __pycache__/
 # Other
 .env.*
 .DS_Store
+bot.log
