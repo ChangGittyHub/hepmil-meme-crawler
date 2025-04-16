@@ -2,6 +2,8 @@
 
 A Telegram bot that scrapes Reddit’s top 20 memes from the past 24 hours, stores them in a local database, generates a visual PDF report (with chart and images), and delivers it to the user via Telegram.
 
+Try it out! @best_meme_scraper_ever_bot
+
 ## 🚀 Features
 
 - 📥 Scrapes top 20 posts from [r/memes](https://www.reddit.com/r/memes) using Reddit API
