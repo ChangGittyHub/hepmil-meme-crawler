@@ -32,14 +32,15 @@ cursor = conn.cursor()
 # Check if Table Exists
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS memes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        post_id TEXT UNIQUE,
-        title TEXT,
-        author TEXT,
-        score INTEGER,
-        url TEXT,
-        shortlink TEXT,
-        created_at TEXT
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id TEXT UNIQUE,
+    title TEXT,
+    author TEXT,
+    score INTEGER,
+    url TEXT,
+    shortlink TEXT,
+    created_at TEXT,  
+    fetched_at TEXT 
     )
 ''')
 
@@ -59,10 +60,11 @@ for post in top_posts:
         url = post.url
         shortlink = post.shortlink
         created_at = datetime.fromtimestamp(post.created_utc).isoformat()
+        fetched_at = datetime.now().isoformat()
 
         cursor.execute('''
-            INSERT INTO memes (post_id, title, author, score, url, shortlink, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO memes (post_id, title, author, score, url, shortlink, created_at, fetched_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(post_id) DO UPDATE SET
                 title = excluded.title,
                 author = excluded.author,
@@ -70,7 +72,7 @@ for post in top_posts:
                 url = excluded.url,
                 shortlink = excluded.shortlink,
                 created_at = excluded.created_at
-        ''', (post_id, title, author, score, url, shortlink, created_at))
+        ''', (post_id, title, author, score, url, shortlink, created_at, fetched_at))
 
         if cursor.rowcount == 1:
             added += 1

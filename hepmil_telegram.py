@@ -43,12 +43,13 @@ def fetch_top_memes():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(f'''
-        SELECT title, author, score, url, shortlink 
-        FROM memes
-        WHERE created_at >= datetime('now', '-1 day')
-        ORDER BY score DESC
-        LIMIT {MAX_MEMES_PER_DAY}
-    ''')
+    SELECT title, author, score, url, shortlink, created_at
+    FROM memes
+    WHERE fetched_at >= datetime('now', '-1 day')
+    ORDER BY score DESC
+    LIMIT {MAX_MEMES_PER_DAY}
+''')
+    
     memes = cursor.fetchall()
     conn.close()
     logging.info(f"Retrieved {len(memes)} memes.")
@@ -56,7 +57,7 @@ def fetch_top_memes():
 
 def generate_upvote_chart(memes):
     logging.info("Generating upvote distribution chart...")
-    scores = [score for _, _, score, _, _ in memes]
+    scores = [score for title, author, score, url, shortlink, created_at in memes]
     plt.figure(figsize=(6, 3))
     plt.bar(range(1, len(scores) + 1), scores)
     plt.title("Upvote Distribution")
@@ -95,10 +96,12 @@ def build_story(memes, date_str):
     story.append(Paragraph("Top 20 Memes - Past 24 Hours", styles["Title"]))
     story.append(Spacer(1, 12))
 
-    for i, (title, author, score, url, shortlink) in enumerate(memes, 1):
+    i = 1
+    for meme in memes:
+        title, author, score, url, shortlink, created_at = meme
         meme_block = []
         meme_block.append(Paragraph(f"{i}. {title}", styles["MemeTitle"]))
-        meme_block.append(Paragraph(f"by u/{author} • {score} upvotes", styles["Italic"]))
+        meme_block.append(Paragraph(f"by u/{author} • {score} upvotes • Posted: {created_at}", styles["Italic"]))
         meme_block.append(Spacer(1, 6))
 
         try:
@@ -121,6 +124,7 @@ def build_story(memes, date_str):
 
         meme_block.append(Spacer(1, 14))
         story.append(KeepTogether(meme_block))
+        i += 1
 
     # Chart
     chart_block = [
